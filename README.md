@@ -41,7 +41,7 @@ This will deploy a CloudFormation stack into your AWS account.
 
 # Configuration
 
-Currently the server config is hardcoded into the `src/tamplate.yaml` file. You may set the server password, name, maximum players, etc in this file. In the future this will be broken out into a separate config file.
+Currently the server config is hardcoded into the [src/tamplate.yaml](https://github.com/team-unhinged/aws-tes3mp/blob/master/src/template.yaml#L34) file. You may set the server password, name, maximum players, etc in this file. In the future this will be broken out into a separate config file.
 
 ### Nice to have but not here yet
 

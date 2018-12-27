@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Tes3mp EC2 CloudFormation Template
+Resources:
+  Tes3mpSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: tes3mp-server-sg
+      GroupDescription: Security group to allow ssh admin and tes3mp server access
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 0
+          ToPort: 65535
+        - IpProtocol: udp
+          CidrIp: 0.0.0.0/0
+          FromPort: 0
+          ToPort: 65535
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: 22
+          ToPort: 22
+        - IpProtocol: udp
+          CidrIp: 0.0.0.0/0
+          FromPort: 25565
+          ToPort: 25565
+      VpcId: vpc-e0484588
+  Tes3mpEC2:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          files:
+            /tes3mp/custom-server-conf.cfg:
+              content: |
+                [General]
+                localAddress = 0.0.0.0
+                port = 25565
+                maximumPlayers = 10 
+                hostname = aws-tes3mp 
+                logLevel = 1
+                password = You Should Really Change This Password
+                [Plugins]
+                home = /server/data
+                plugins = serverCore.lua
+                [MasterServer]
+                enabled = true
+                address = master.tes3mp.com
+                port = 25561
+                rate = 10000
+              mode: '000400'
+              owner: root 
+              group: root 
+            /tes3mp/version-fix:
+              content: |
+                0.44.0
+                292536439eeda58becdb7e441fe2e61ebb74529e
+                5e38e8abdbdfe87beed2494d5c76245e226d63b5
+    Properties:
+      DisableApiTermination: false
+      ImageId: ami-0f65671a86f061fcd
+      InstanceType: t2.micro
+      KeyName: tes3mp-server-kp
+      SecurityGroups:
+        - tes3mp-server-sg
+      UserData: 
+        Fn::Base64: 
+          !Sub |
+            #!/bin/bash -xe
+            apt update
+            apt -y install python-pip
+            pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+            apt remove docker docker-engine docker.io
+            apt -y install apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            apt update
+            apt -y install docker-ce
+            cfn-init -v --stack ${AWS::StackName} --resource Tes3mpEC2 --region ${AWS::Region}
+            docker run -d --rm --name tes3mp-server -v "/tes3mp/data:/server/data" -v "/tes3mp/custom-server-conf.cfg:/server/tes3mp-server-default.cfg" -v "/tes3mp/version-fix:/server/resources/version" -p "25565:25565/udp" tes3mp/server
+    DependsOn:
+      - Tes3mpSG

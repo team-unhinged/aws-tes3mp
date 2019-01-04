@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Tes3mp EC2 CloudFormation Template
 Resources:
+  IpWhitelistFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: ip-whitelister/ipwhitelister
+      Runtime: go1.x
+
   Tes3mpSG:
     Type: AWS::EC2::SecurityGroup
     Properties:

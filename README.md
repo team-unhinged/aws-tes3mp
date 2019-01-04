@@ -8,7 +8,7 @@ A copy of the game is not actually needed to run the server.
 
 # Some AWS Setup
 
-This projects assumes some knowledge of AWS. Namely how to create an IAM user in your accound and create access keys. Also, how to create an EC2 keypair (this isn't necessarily needed, but you won't be able to ssh into the instance).
+This projects assumes some knowledge of AWS. Namely how to create an IAM user in your accound and create access keys. Also, how to create an EC2 keypair (this isn't necessarily needed, but you won't be able to ssh into the instance.)
 
 # Deploy
 
